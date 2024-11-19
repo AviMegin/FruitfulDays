@@ -4,100 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Fruit Counter</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: Arial, sans-serif;
-      background: #f3f4f6;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      position: relative;
-    }
-
-    canvas {
-      display: block;
-      width: 100%;
-      height: auto;
-      max-height: 100vh;
-      background: #f9fafb;
-      border: 1px solid #ddd;
-    }
-
-    h1 {
-      margin: 10px 0;
-      font-size: 24px;
-      color: #333;
-    }
-
-    #sideMenu {
-      position: fixed;
-      top: -100%;
-      left: 0;
-      width: 100%;
-      height: 200px;
-      background-color: #333;
-      color: white;
-      transition: top 0.3s ease-in-out;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-      z-index: 999;
-      padding: 20px;
-    }
-
-    #sideMenu h2 {
-      margin: 0 0 10px;
-      font-size: 18px;
-      color: #fff;
-    }
-
-    #sideMenu button {
-      display: inline-block;
-      background-color: #555;
-      color: white;
-      border: none;
-      padding: 10px;
-      margin: 5px;
-      cursor: pointer;
-      font-size: 16px;
-      transition: background-color 0.3s ease;
-    }
-
-    #sideMenu button:hover {
-      background-color: #ffcc00;
-    }
-
-    #menuToggle {
-      position: absolute;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 50px;
-      color: #333;
-      background: transparent;
-      border: none;
-      cursor: pointer;
-      z-index: 1000;
-      transition: transform 0.3s ease;
-    }
-
-    #menuToggle:before {
-      content: '↓';
-      font-size: 50px;
-      transition: transform 0.3s ease;
-      color: #333;
-    }
-
-    #menuToggle.open:before {
-      transform: rotate(180deg);
-    }
-
-    #menuToggle:focus {
-      outline: none;
-    }
-  </style>
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <h1>Fruit Counter</h1>
@@ -193,25 +100,12 @@
     let gravity = { x: 0, y: 0 };
 
     // Device motion handling
-    window.addEventListener('devicemotion', (event) => {
-      gravity.x = event.accelerationIncludingGravity.x / 10 || 0;
-      gravity.y = event.accelerationIncludingGravity.y / 10 || 0;
-    });
+    // Device motion handling
+window.addEventListener('devicemotion', (event) => {
+  gravity.x = (event.accelerationIncludingGravity.x || 0) / 20; // Reduced intensity
+  gravity.y = (event.accelerationIncludingGravity.y || 0) / 20; // Reduced intensity
+});
 
-    // Add fruit buttons
-    fruits.forEach(fruit => {
-      const button = document.createElement('button');
-      button.textContent = fruit.name;
-      button.addEventListener('click', () => {
-        const radius = 40;
-        const x = Math.random() * (canvas.width - radius * 2) + radius;
-        const y = Math.random() * (canvas.height - radius * 2) + radius;
-        const dx = Math.random() * 2 - 1;
-        const dy = Math.random() * 2 - 1;
-        balls.push(new Ball(x, y, dx, dy, radius, fruit.image));
-      });
-      fruitButtonsContainer.appendChild(button);
-    });
 
     function gameLoop() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -251,6 +145,33 @@
         menuToggle.classList.remove('open');
       }
     }
+    // Function to calculate radius based on the number of fruits
+function calculateRadius() {
+  const baseRadius = 40; // Maximum size for a single fruit
+  const minRadius = 10;  // Minimum size to prevent the fruits from being too small
+  const maxFruits = 50;  // Number of fruits where radius reaches its minimum
+
+  return Math.max(
+    minRadius,
+    baseRadius - ((baseRadius - minRadius) * balls.length) / maxFruits
+  );
+}
+
+// Add fruit buttons
+fruits.forEach(fruit => {
+  const button = document.createElement('button');
+  button.textContent = fruit.name;
+  button.addEventListener('click', () => {
+    const radius = calculateRadius();
+    const x = Math.random() * (canvas.width - radius * 2) + radius;
+    const y = Math.random() * (canvas.height - radius * 2) + radius;
+    const dx = Math.random() * 2 - 1;
+    const dy = Math.random() * 2 - 1;
+    balls.push(new Ball(x, y, dx, dy, radius, fruit.image));
+  });
+  fruitButtonsContainer.appendChild(button);
+});
+
   </script>
 </body>
 </html>
