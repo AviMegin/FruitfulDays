@@ -1,0 +1,42 @@
+/* Nothing here needed for app */
+
+html{
+    height:100%;
+}
+body{
+    background-color:#99ccff;
+}
+sup{
+    font-size: 45%;
+}
+span{
+    display:inline-block;
+    position:relative;
+    padding:4px;
+    width:350px;
+    line-height: 18px;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    cursor: default;
+    transform:rotate(-5deg);
+    background-color:rgba(0,0,0,0.5);
+    border-radius:5px;
+    font: 30px verdana;
+    color: #fff; 
+    text-align: center;
+}
+p {
+    margin: 5px;
+}
+
+ul {
+    padding-left:20px; 
+
+}
+
+li {
+    text-align:left;
+    padding-top:5px;
+}

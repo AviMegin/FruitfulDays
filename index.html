@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fruit Counter</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background: #f3f4f6;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      position: relative;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-height: 100vh;
+      background: #f9fafb;
+      border: 1px solid #ddd;
+    }
+
+    h1 {
+      margin: 10px 0;
+      font-size: 24px;
+      color: #333;
+    }
+
+    /* Side Menu styles */
+    #sideMenu {
+      position: fixed;
+      top: -100%; /* Initially hidden off-screen */
+      left: 0;
+      width: 100%;
+      height: 200px; /* Height of the menu */
+      background-color: #333;
+      color: white;
+      transition: top 0.3s ease-in-out;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      z-index: 999; /* Ensure it overlays on top */
+      padding: 20px;
+    }
+
+    #sideMenu h2 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      color: #fff;
+    }
+
+    #sideMenu button {
+      display: inline-block;
+      background-color: #555;
+      color: white;
+      border: none;
+      padding: 10px;
+      margin: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s ease;
+    }
+
+    #sideMenu button:hover {
+      background-color: #ffcc00;
+    }
+
+    /* Menu Toggle Button styles */
+    #menuToggle {
+      position: absolute;
+      top: 20px; /* Positioned in the top center */
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 50px; /* Larger arrow */
+      color: #333;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      z-index: 1000; /* Ensure it stays on top of the menu */
+      transition: transform 0.3s ease;
+    }
+
+    #menuToggle:before {
+      content: '↓'; /* Down arrow */
+      font-size: 50px;
+      transition: transform 0.3s ease;
+      color: #333;
+    }
+
+    #menuToggle.open:before {
+      transform: rotate(180deg); /* Flip arrow when the menu is open */
+    }
+
+    #menuToggle:focus {
+      outline: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Fruit Counter</h1>
+  <canvas id="fruitCanvas"></canvas>
+
+  <!-- Side Menu -->
+  <div id="sideMenu">
+    <h2>Select a Fruit:</h2>
+    <div id="fruitButtons">
+      <!-- Fruit buttons will be dynamically generated here -->
+    </div>
+  </div>
+
+  <!-- Menu Toggle Button (Arrow) -->
+  <button id="menuToggle"></button>
+
+  <script>
+    const canvas = document.getElementById('fruitCanvas');
+    const ctx = canvas.getContext('2d');
+    const sideMenu = document.getElementById('sideMenu');
+    const menuToggle = document.getElementById('menuToggle');
+    const fruitButtonsContainer = document.getElementById('fruitButtons');
+
+    // Responsive canvas sizing
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const fruits = [
+      { name: "Apple", image: "https://i.postimg.cc/ZvHmJ0Cp/apple.webp" },
+      { name: "Banana", image: "https://i.postimg.cc/D4nFV1y7/banana.webp" },
+      { name: "Blueberry", image: "https://i.postimg.cc/bdh2YMZw/blueberry.webp" },
+      { name: "Green Apple", image: "https://i.postimg.cc/grHLxDhq/greenapple.webp" },
+      { name: "Kiwi", image: "https://i.postimg.cc/hfCJrtpX/kiwi.webp" },
+      { name: "Lemon", image: "https://i.postimg.cc/MvZMVQbk/lemon.webp" },
+      { name: "Mango", image: "https://i.postimg.cc/cvrv5GbX/mango.webp" },
+      { name: "Melon", image: "https://i.postimg.cc/qhf4L9Ph/melon.webp" },
+      { name: "Strawberry", image: "https://i.postimg.cc/62dw1MKH/strawberry.webp" }
+    ];
+
+    class Ball {
+      constructor(x, y, dx, dy, radius, imageSrc) {
+        this.x = x;
+        this.y = y;
+        this.dx = dx;
+        this.dy = dy;
+        this.radius = radius;
+        this.image = new Image();
+        this.image.src = imageSrc;
+      }
+
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
+        ctx.closePath();
+        ctx.drawImage(
+          this.image,
+          this.x - this.radius,
+          this.y - this.radius,
+          this.radius * 2,
+          this.radius * 2
+        );
+      }
+
+      update(balls) {
+        if (this.x + this.radius > canvas.width || this.x - this.radius < 0) {
+          this.dx = -this.dx;
+        }
+        if (this.y + this.radius > canvas.height || this.y - this.radius < 0) {
+          this.dy = -this.dy;
+        }
+        this.x += this.dx;
+        this.y += this.dy;
+      }
+    }
+
+    const balls = [];
+
+    // Create buttons for each fruit
+    fruits.forEach((fruit) => {
+      const button = document.createElement('button');
+      button.textContent = fruit.name;
+      button.addEventListener('click', () => {
+        const radius = 40;
+        const x = Math.random() * (canvas.width - radius * 2) + radius;
+        const y = Math.random() * (canvas.height - radius * 2) + radius;
+        const dx = Math.random() * 2 - 1;
+        const dy = Math.random() * 2 - 1;
+        balls.push(new Ball(x, y, dx, dy, radius, fruit.image));
+      });
+      fruitButtonsContainer.appendChild(button);
+    });
+
+    function gameLoop() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      balls.forEach((ball) => {
+        ball.update(balls);
+        ball.draw();
+      });
+      requestAnimationFrame(gameLoop);
+    }
+
+    gameLoop();
+
+    // Side menu toggle functionality
+    menuToggle.addEventListener('click', () => {
+      const isOpen = sideMenu.style.top === '0px';
+      sideMenu.style.top = isOpen ? '-100%' : '0px';
+      menuToggle.classList.toggle('open'); // Toggle the arrow animation
+    });
+
+    // Swipe detection for up/down
+    let touchStartY = 0;
+    let touchEndY = 0;
+
+    document.addEventListener('touchstart', (e) => {
+      touchStartY = e.changedTouches[0].screenY;
+    });
+
+    document.addEventListener('touchend', (e) => {
+      touchEndY = e.changedTouches[0].screenY;
+      handleSwipeGesture();
+    });
+
+    function handleSwipeGesture() {
+      if (touchEndY < touchStartY - 50) {
+        // Swipe up: open menu
+        sideMenu.style.top = '0';
+        menuToggle.classList.add('open');
+      } else if (touchEndY > touchStartY + 50) {
+        // Swipe down: close menu
+        sideMenu.style.top = '-100%';
+        menuToggle.classList.remove('open');
+      }
+    }
+  </script>
+</body>
+</html>
