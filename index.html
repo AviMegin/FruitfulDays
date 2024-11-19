@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
- 
+ <div id="fruitCounter"></div>
   <canvas id="fruitCanvas"></canvas>
 
   <div id="sideMenu">
@@ -138,10 +138,10 @@ window.addEventListener('devicemotion', (event) => {
 
     function handleSwipeGesture() {
       if (touchEndY < touchStartY - 50) {
-        sideMenu.style.top = '0';
+        sideMenu.style.top = '-100%';
         menuToggle.classList.add('open');
       } else if (touchEndY > touchStartY + 50) {
-        sideMenu.style.top = '-100%';
+        sideMenu.style.top = '0';
         menuToggle.classList.remove('open');
       }
     }
@@ -156,6 +156,21 @@ function calculateRadius() {
     baseRadius - ((baseRadius - minRadius) * balls.length) / maxFruits
   );
 }
+const fruitCounter = document.getElementById('fruitCounter');
+
+// Initialize the counter
+let fruitCount = 0;
+fruitCounter.textContent = `Fruits: ${fruitCount}`;
+
+// Function to update and animate the counter
+function updateFruitCounter() {
+  fruitCount = balls.length;
+  fruitCounter.textContent = `Fruits: ${fruitCount}`;
+  fruitCounter.style.animation = 'none'; // Reset animation
+  setTimeout(() => {
+    fruitCounter.style.animation = 'updateCounter 0.5s ease';
+  }, 0); // Trigger animation
+}
 
 // Add fruit buttons
 fruits.forEach(fruit => {
@@ -168,9 +183,11 @@ fruits.forEach(fruit => {
     const dx = Math.random() * 2 - 1;
     const dy = Math.random() * 2 - 1;
     balls.push(new Ball(x, y, dx, dy, radius, fruit.image));
+    updateFruitCounter(); // Update the counter whenever a fruit is added
   });
   fruitButtonsContainer.appendChild(button);
 });
+
 
   </script>
 </body>

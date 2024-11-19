@@ -1,92 +1,133 @@
 body {
-    margin: 0;
-    padding: 0;
-    font-family: Arial, sans-serif;
-    background: #f3f4f6;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    position: relative;
-  }
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  background: #f3f4f6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  position: relative;
+}
 
-  canvas {
-    display: block;
-    width: 100%;
-    height: auto;
-    max-height: 100vh;
-    background: #f9fafb;
-    border: 1px solid #ddd;
-  }
+canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 100vh;
+  background: #f9fafb;
+  border: 1px solid #ddd;
+}
 
-  h1 {
-    margin: 10px 0;
-    font-size: 24px;
-    color: #333;
-  }
+h1 {
+  margin: 10px 0;
+  font-size: 24px;
+  color: #333;
+}
 
-  #sideMenu {
-    position: fixed;
-    top: -100%;
-    left: 0;
-    width: 100%;
-    height: 200px;
-    background-color: #333;
-    color: white;
-    transition: top 0.3s ease-in-out;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    z-index: 999;
-    padding: 20px;
-  }
+#sideMenu {
+  position: fixed;
+  top: -100%;
+  left: 0;
+  width: 100%;
+  height: 200px;
+  background-color: #333;
+  color: white;
+  transition: top 0.3s ease-in-out;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 999;
+  padding: 20px;
+}
 
-  #sideMenu h2 {
-    margin: 0 0 10px;
-    font-size: 18px;
-    color: #fff;
-  }
+#sideMenu h2 {
+  margin: 0 0 10px;
+  font-size: 18px;
+  color: #fff;
+}
 
-  #sideMenu button {
-    display: inline-block;
-    background-color: #555;
-    color: white;
-    border: none;
-    padding: 10px;
-    margin: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.3s ease;
-  }
+#sideMenu button {
+  display: inline-block;
+  background-color: #555;
+  color: white;
+  border: none;
+  padding: 10px;
+  margin: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
 
-  #sideMenu button:hover {
-    background-color: #ffcc00;
-  }
+#sideMenu button:hover {
+  background-color: #ffcc00;
+}
 
-  #menuToggle {
-    position: absolute;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 50px;
-    color: #333;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    z-index: 1000;
-    transition: transform 0.3s ease;
-  }
+#menuToggle {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 50px;
+  color: #333;
+  background: #fff;
+  border: none;
+  cursor: pointer;
+  z-index: 1000;
+  padding: 10px 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
 
-  #menuToggle:before {
-    content: '↓';
-    font-size: 50px;
-    transition: transform 0.3s ease;
-    color: #333;
-  }
+#menuToggle.open {
+  background-color: #ffcc00;
+}
 
-  #menuToggle.open:before {
+#menuToggle:before {
+  content: '↓';
+  font-size: 30px;
+  transition: transform 0.3s ease;
+  color: #333;
+}
+
+#menuToggle.open:before {
+  transform: rotate(180deg);
+}
+
+#menuToggle:focus {
+  outline: none;
+}
+
+#fruitCounter {
+  font: 800 40px system-ui;
+  color: #333;
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 10px 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  animation: updateCounter 0.5s ease-in-out;
+}
+
+@keyframes updateCounter {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.5);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes flipArrow {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
     transform: rotate(180deg);
   }
-
-  #menuToggle:focus {
-    outline: none;
-  }
+}
