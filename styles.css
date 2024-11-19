@@ -1,42 +1,94 @@
-/* Nothing here needed for app */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background: #f3f4f6;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    position: relative;
+  }
 
-html{
-    height:100%;
-}
-body{
-    background-color:#99ccff;
-}
-sup{
-    font-size: 45%;
-}
-span{
-    display:inline-block;
-    position:relative;
-    padding:4px;
-    width:350px;
-    line-height: 18px;
-    user-select: none;
-    -moz-user-select: none;
-    -webkit-user-select: none;
-    -ms-user-select: none;
-    cursor: default;
-    transform:rotate(-5deg);
-    background-color:rgba(0,0,0,0.5);
-    border-radius:5px;
-    font: 30px verdana;
-    color: #fff; 
-    text-align: center;
-}
-p {
+  canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 100vh;
+    background: #f9fafb;
+    border: 1px solid #ddd;
+  }
+
+  h1 {
+    margin: 10px 0;
+    font-size: 24px;
+    color: #333;
+  }
+
+  /* Side Menu styles */
+  #sideMenu {
+    position: fixed;
+    top: -100%; /* Initially hidden off-screen */
+    left: 0;
+    width: 100%;
+    height: 200px; /* Height of the menu */
+    background-color: #333;
+    color: white;
+    transition: top 0.3s ease-in-out;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 999; /* Ensure it overlays on top */
+    padding: 20px;
+  }
+
+  #sideMenu h2 {
+    margin: 0 0 10px;
+    font-size: 18px;
+    color: #fff;
+  }
+
+  #sideMenu button {
+    display: inline-block;
+    background-color: #555;
+    color: white;
+    border: none;
+    padding: 10px;
     margin: 5px;
-}
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+  }
 
-ul {
-    padding-left:20px; 
+  #sideMenu button:hover {
+    background-color: #ffcc00;
+  }
 
-}
+  /* Menu Toggle Button styles */
+  #menuToggle {
+    position: absolute;
+    top: 20px; /* Positioned in the top center */
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 50px; /* Larger arrow */
+    color: #333;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    z-index: 1000; /* Ensure it stays on top of the menu */
+    transition: transform 0.3s ease;
+  }
 
-li {
-    text-align:left;
-    padding-top:5px;
-}
+  #menuToggle:before {
+    content: '↓'; /* Down arrow */
+    font-size: 50px;
+    transition: transform 0.3s ease;
+    color: #333;
+  }
+
+  #menuToggle.open:before {
+    transform: rotate(180deg); /* Flip arrow when the menu is open */
+  }
+
+  #menuToggle:focus {
+    outline: none;
+  }

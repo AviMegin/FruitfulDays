@@ -33,18 +33,17 @@
       color: #333;
     }
 
-    /* Side Menu styles */
     #sideMenu {
       position: fixed;
-      top: -100%; /* Initially hidden off-screen */
+      top: -100%;
       left: 0;
       width: 100%;
-      height: 200px; /* Height of the menu */
+      height: 200px;
       background-color: #333;
       color: white;
       transition: top 0.3s ease-in-out;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-      z-index: 999; /* Ensure it overlays on top */
+      z-index: 999;
       padding: 20px;
     }
 
@@ -70,30 +69,29 @@
       background-color: #ffcc00;
     }
 
-    /* Menu Toggle Button styles */
     #menuToggle {
       position: absolute;
-      top: 20px; /* Positioned in the top center */
+      top: 20px;
       left: 50%;
       transform: translateX(-50%);
-      font-size: 50px; /* Larger arrow */
+      font-size: 50px;
       color: #333;
       background: transparent;
       border: none;
       cursor: pointer;
-      z-index: 1000; /* Ensure it stays on top of the menu */
+      z-index: 1000;
       transition: transform 0.3s ease;
     }
 
     #menuToggle:before {
-      content: '↓'; /* Down arrow */
+      content: '↓';
       font-size: 50px;
       transition: transform 0.3s ease;
       color: #333;
     }
 
     #menuToggle.open:before {
-      transform: rotate(180deg); /* Flip arrow when the menu is open */
+      transform: rotate(180deg);
     }
 
     #menuToggle:focus {
@@ -105,15 +103,11 @@
   <h1>Fruit Counter</h1>
   <canvas id="fruitCanvas"></canvas>
 
-  <!-- Side Menu -->
   <div id="sideMenu">
     <h2>Select a Fruit:</h2>
-    <div id="fruitButtons">
-      <!-- Fruit buttons will be dynamically generated here -->
-    </div>
+    <div id="fruitButtons"></div>
   </div>
 
-  <!-- Menu Toggle Button (Arrow) -->
   <button id="menuToggle"></button>
 
   <script>
@@ -123,7 +117,6 @@
     const menuToggle = document.getElementById('menuToggle');
     const fruitButtonsContainer = document.getElementById('fruitButtons');
 
-    // Responsive canvas sizing
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
@@ -151,9 +144,6 @@
       }
 
       draw() {
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
-        ctx.closePath();
         ctx.drawImage(
           this.image,
           this.x - this.radius,
@@ -163,22 +153,53 @@
         );
       }
 
-      update(balls) {
+      update(balls, gravity) {
+        // Wall collisions
         if (this.x + this.radius > canvas.width || this.x - this.radius < 0) {
           this.dx = -this.dx;
         }
         if (this.y + this.radius > canvas.height || this.y - this.radius < 0) {
           this.dy = -this.dy;
         }
+
+        // Apply gravity
+        this.dx += gravity.x;
+        this.dy += gravity.y;
+
+        // Ball collisions
+        balls.forEach(ball => {
+          if (this === ball) return;
+
+          const dist = Math.hypot(this.x - ball.x, this.y - ball.y);
+          if (dist < this.radius + ball.radius) {
+            const overlap = this.radius + ball.radius - dist;
+            const angle = Math.atan2(this.y - ball.y, this.x - ball.x);
+            this.x += Math.cos(angle) * overlap / 2;
+            this.y += Math.sin(angle) * overlap / 2;
+            ball.x -= Math.cos(angle) * overlap / 2;
+            ball.y -= Math.sin(angle) * overlap / 2;
+
+            [this.dx, ball.dx] = [ball.dx, this.dx];
+            [this.dy, ball.dy] = [ball.dy, this.dy];
+          }
+        });
+
         this.x += this.dx;
         this.y += this.dy;
       }
     }
 
     const balls = [];
+    let gravity = { x: 0, y: 0 };
 
-    // Create buttons for each fruit
-    fruits.forEach((fruit) => {
+    // Device motion handling
+    window.addEventListener('devicemotion', (event) => {
+      gravity.x = event.accelerationIncludingGravity.x / 10 || 0;
+      gravity.y = event.accelerationIncludingGravity.y / 10 || 0;
+    });
+
+    // Add fruit buttons
+    fruits.forEach(fruit => {
       const button = document.createElement('button');
       button.textContent = fruit.name;
       button.addEventListener('click', () => {
@@ -194,8 +215,8 @@
 
     function gameLoop() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      balls.forEach((ball) => {
-        ball.update(balls);
+      balls.forEach(ball => {
+        ball.update(balls, gravity);
         ball.draw();
       });
       requestAnimationFrame(gameLoop);
@@ -203,33 +224,29 @@
 
     gameLoop();
 
-    // Side menu toggle functionality
     menuToggle.addEventListener('click', () => {
       const isOpen = sideMenu.style.top === '0px';
       sideMenu.style.top = isOpen ? '-100%' : '0px';
-      menuToggle.classList.toggle('open'); // Toggle the arrow animation
+      menuToggle.classList.toggle('open');
     });
 
-    // Swipe detection for up/down
     let touchStartY = 0;
     let touchEndY = 0;
 
-    document.addEventListener('touchstart', (e) => {
+    document.addEventListener('touchstart', e => {
       touchStartY = e.changedTouches[0].screenY;
     });
 
-    document.addEventListener('touchend', (e) => {
+    document.addEventListener('touchend', e => {
       touchEndY = e.changedTouches[0].screenY;
       handleSwipeGesture();
     });
 
     function handleSwipeGesture() {
       if (touchEndY < touchStartY - 50) {
-        // Swipe up: open menu
         sideMenu.style.top = '0';
         menuToggle.classList.add('open');
       } else if (touchEndY > touchStartY + 50) {
-        // Swipe down: close menu
         sideMenu.style.top = '-100%';
         menuToggle.classList.remove('open');
       }
