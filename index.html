@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Fruit Counter</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -15,7 +16,7 @@
     <h2>Select a Fruit:</h2>
     <div id="fruitButtons"></div>
   </div>
-
+  <div id="gradient" />
   <button id="menuToggle"></button>
 
   <script>
@@ -40,67 +41,69 @@
       { name: "Mango", image: "https://i.postimg.cc/cvrv5GbX/mango.webp" },
       { name: "Melon", image: "https://i.postimg.cc/qhf4L9Ph/melon.webp" },
       { name: "Strawberry", image: "https://i.postimg.cc/62dw1MKH/strawberry.webp" }
-    ];
+    ];class Ball {
+  constructor(x, y, dx, dy, radius, imageSrc) {
+    this.x = x;
+    this.y = y;
+    this.dx = dx;
+    this.dy = dy;
+    this.radius = radius;
+    this.image = new Image();
+    this.image.src = imageSrc;
+  }
 
-    class Ball {
-      constructor(x, y, dx, dy, radius, imageSrc) {
-        this.x = x;
-        this.y = y;
-        this.dx = dx;
-        this.dy = dy;
-        this.radius = radius;
-        this.image = new Image();
-        this.image.src = imageSrc;
-      }
+  draw() {
+    ctx.drawImage(
+      this.image,
+      this.x - this.radius,
+      this.y - this.radius,
+      this.radius * 2,
+      this.radius * 2
+    );
+  }
 
-      draw() {
-        ctx.drawImage(
-          this.image,
-          this.x - this.radius,
-          this.y - this.radius,
-          this.radius * 2,
-          this.radius * 2
-        );
-      }
-
-      update(balls, gravity) {
-        // Wall collisions
-        if (this.x + this.radius > canvas.width || this.x - this.radius < 0) {
-          this.dx = -this.dx * 0.8; // Reverse and reduce speed on wall hit
-        }
-        if (this.y + this.radius > canvas.height || this.y - this.radius < 0) {
-          this.dy = -this.dy * 0.8; // Reverse and reduce speed on wall hit
-        }
-
-        // Apply gravity
-        this.dx += gravity.x;
-        this.dy += gravity.y;
-
-        // Ball collisions
-        balls.forEach(ball => {
-          if (this === ball) return;
-
-          const dist = Math.hypot(this.x - ball.x, this.y - ball.y);
-          if (dist < this.radius + ball.radius) {
-            const overlap = this.radius + ball.radius - dist;
-            const angle = Math.atan2(this.y - ball.y, this.x - ball.x);
-
-            // Separate overlapping balls
-            this.x += Math.cos(angle) * overlap / 2;
-            this.y += Math.sin(angle) * overlap / 2;
-            ball.x -= Math.cos(angle) * overlap / 2;
-            ball.y -= Math.sin(angle) * overlap / 2;
-
-            // Exchange velocities and reduce speed
-            [this.dx, ball.dx] = [ball.dx * 0.8, this.dx * 0.8];
-            [this.dy, ball.dy] = [ball.dy * 0.8, this.dy * 0.8];
-          }
-        });
-
-        this.x += this.dx;
-        this.y += this.dy;
-      }
+  update(balls, gravity) {
+    // Wall collisions
+    if (this.x + this.radius > canvas.width || this.x - this.radius < 0) {
+      this.dx = -this.dx * 0.8; // Reverse and reduce speed on wall hit
     }
+    if (this.y + this.radius > canvas.height) {
+      this.y = canvas.height - this.radius; // Prevent from going below the canvas
+      this.dy = -this.dy * 0.8; // Reverse and reduce speed when hitting the bottom
+    }
+    if (this.y - this.radius < 0) {
+      this.y = this.radius; // Prevent from going above the canvas
+      this.dy = -this.dy * 0.8; // Reverse and reduce speed when hitting the top
+    }
+
+    // Apply gravity
+    this.dy += gravity.y;
+
+    // Ball collisions
+    balls.forEach(ball => {
+      if (this === ball) return;
+
+      const dist = Math.hypot(this.x - ball.x, this.y - ball.y);
+      if (dist < this.radius + ball.radius) {
+        const overlap = this.radius + ball.radius - dist;
+        const angle = Math.atan2(this.y - ball.y, this.x - ball.x);
+
+        // Separate overlapping balls
+        this.x += Math.cos(angle) * overlap / 2;
+        this.y += Math.sin(angle) * overlap / 2;
+        ball.x -= Math.cos(angle) * overlap / 2;
+        ball.y -= Math.sin(angle) * overlap / 2;
+
+        // Exchange velocities and reduce speed
+        [this.dx, ball.dx] = [ball.dx * 0.8, this.dx * 0.8];
+        [this.dy, ball.dy] = [ball.dy * 0.8, this.dy * 0.8];
+      }
+    });
+
+    this.x += this.dx;
+    this.y += this.dy;
+  }
+}
 
     const balls = [];
     let gravity = { x: 0, y: 0 };
