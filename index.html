@@ -7,9 +7,9 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
- <div class="Counter" id="fruitCounter"></div>
- <div class="Counter2" id="streakCounter"></div>
- <canvas id="fruitCanvas"></canvas>
+  <div class="Counter" id="fruitCounter"></div>
+  <div class="Counter2" id="streakCounter"></div>
+  <canvas id="fruitCanvas"></canvas>
 
   <div id="sideMenu">
     <h2>Select a Fruit:</h2>
@@ -66,10 +66,10 @@
       update(balls, gravity) {
         // Wall collisions
         if (this.x + this.radius > canvas.width || this.x - this.radius < 0) {
-          this.dx = -this.dx;
+          this.dx = -this.dx * 0.8; // Reverse and reduce speed on wall hit
         }
         if (this.y + this.radius > canvas.height || this.y - this.radius < 0) {
-          this.dy = -this.dy;
+          this.dy = -this.dy * 0.8; // Reverse and reduce speed on wall hit
         }
 
         // Apply gravity
@@ -84,13 +84,16 @@
           if (dist < this.radius + ball.radius) {
             const overlap = this.radius + ball.radius - dist;
             const angle = Math.atan2(this.y - ball.y, this.x - ball.x);
+
+            // Separate overlapping balls
             this.x += Math.cos(angle) * overlap / 2;
             this.y += Math.sin(angle) * overlap / 2;
             ball.x -= Math.cos(angle) * overlap / 2;
             ball.y -= Math.sin(angle) * overlap / 2;
 
-            [this.dx, ball.dx] = [ball.dx, this.dx];
-            [this.dy, ball.dy] = [ball.dy, this.dy];
+            // Exchange velocities and reduce speed
+            [this.dx, ball.dx] = [ball.dx * 0.8, this.dx * 0.8];
+            [this.dy, ball.dy] = [ball.dy * 0.8, this.dy * 0.8];
           }
         });
 
@@ -104,8 +107,8 @@
 
     // Device motion handling
     window.addEventListener('devicemotion', (event) => {
-      gravity.x = (event.accelerationIncludingGravity.x || 0) / 20; // Reduced intensity
-      gravity.y = (event.accelerationIncludingGravity.y || 0) / 20; // Reduced intensity
+      gravity.x = -(event.accelerationIncludingGravity.x || 0) / 20; // Invert X gravity
+      gravity.y = (event.accelerationIncludingGravity.y || 0) / 20;  // Keep Y gravity the same
     });
 
     // Initialize balls from localStorage
@@ -222,18 +225,18 @@
         const lastLoggedDate = localStorage.getItem('lastLoggedDate');
 
         if (lastLoggedDate !== currentDate) {
-          streak++; // Increment streak
-          localStorage.setItem('lastLoggedDate', currentDate); // Update the date
-          localStorage.setItem('streak', streak); // Save streak
+          streak += 1;
+          localStorage.setItem('streak', streak);
+          localStorage.setItem('lastLoggedDate', currentDate);
+          updateStreakCounter();
         }
 
         updateFruitCounter();
-        updateStreakCounter();
       });
       fruitButtonsContainer.appendChild(button);
     });
 
-    // Update the streak counter on page load
+    updateFruitCounter();
     updateStreakCounter();
   </script>
 </body>
