@@ -9,8 +9,16 @@ body {
   justify-content: center;
   height: 100vh;
   position: relative;
+  overflow: hidden;
+}
+/* Hide scrollbars for specific elements */
+::-webkit-scrollbar {
+  display: none; /* For WebKit browsers */
 }
 
+::-moz-scrollbar {
+  display: none; /* For Mozilla browsers (optional, if supported) */
+}
 canvas {
   display: block;
   width: 100%;
