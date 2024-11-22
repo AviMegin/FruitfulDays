@@ -4,11 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Fruit Counter</title>
-<link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
- <div id="fruitCounter"></div>
-  <canvas id="fruitCanvas"></canvas>
+ <div class="Counter" id="fruitCounter"></div>
+ <div class="Counter2" id="streakCounter"></div>
+ <canvas id="fruitCanvas"></canvas>
 
   <div id="sideMenu">
     <h2>Select a Fruit:</h2>
@@ -23,6 +24,8 @@
     const sideMenu = document.getElementById('sideMenu');
     const menuToggle = document.getElementById('menuToggle');
     const fruitButtonsContainer = document.getElementById('fruitButtons');
+    const fruitCounter = document.getElementById('fruitCounter');
+    const streakCounter = document.getElementById('streakCounter');
 
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
@@ -100,12 +103,42 @@
     let gravity = { x: 0, y: 0 };
 
     // Device motion handling
-    // Device motion handling
-window.addEventListener('devicemotion', (event) => {
-  gravity.x = (event.accelerationIncludingGravity.x || 0) / 20; // Reduced intensity
-  gravity.y = (event.accelerationIncludingGravity.y || 0) / 20; // Reduced intensity
-});
+    window.addEventListener('devicemotion', (event) => {
+      gravity.x = (event.accelerationIncludingGravity.x || 0) / 20; // Reduced intensity
+      gravity.y = (event.accelerationIncludingGravity.y || 0) / 20; // Reduced intensity
+    });
 
+    // Initialize balls from localStorage
+    function loadFruitsFromLocalStorage() {
+      const storedFruits = JSON.parse(localStorage.getItem('addedFruits')) || [];
+      storedFruits.forEach(fruit => {
+        balls.push(new Ball(fruit.x, fruit.y, fruit.dx, fruit.dy, fruit.radius, fruit.image));
+      });
+    }
+
+    loadFruitsFromLocalStorage();
+
+    // Initialize streak counter from localStorage
+    function loadStreakFromLocalStorage() {
+      const lastLoggedDate = localStorage.getItem('lastLoggedDate');
+      const currentDate = new Date().toISOString().split('T')[0]; // Get the current date (YYYY-MM-DD)
+
+      // Check if the fruit was logged today
+      if (lastLoggedDate === currentDate) {
+        return parseInt(localStorage.getItem('streak')) || 0;
+      } else {
+        // Reset streak if it's a new day
+        localStorage.setItem('lastLoggedDate', currentDate);
+        return 0;
+      }
+    }
+
+    let streak = loadStreakFromLocalStorage();
+
+    // Update streak counter
+    function updateStreakCounter() {
+      streakCounter.textContent = `Streak: ${streak} day(s)`;
+    }
 
     function gameLoop() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -145,50 +178,63 @@ window.addEventListener('devicemotion', (event) => {
         menuToggle.classList.remove('open');
       }
     }
-    // Function to calculate radius based on the number of fruits
-function calculateRadius() {
-  const baseRadius = 40; // Maximum size for a single fruit
-  const minRadius = 10;  // Minimum size to prevent the fruits from being too small
-  const maxFruits = 50;  // Number of fruits where radius reaches its minimum
 
-  return Math.max(
-    minRadius,
-    baseRadius - ((baseRadius - minRadius) * balls.length) / maxFruits
-  );
-}
-const fruitCounter = document.getElementById('fruitCounter');
+    function calculateRadius() {
+      const baseRadius = 40;
+      const minRadius = 10;
+      const maxFruits = 50;
+      return Math.max(minRadius, baseRadius - ((baseRadius - minRadius) * balls.length) / maxFruits);
+    }
 
-// Initialize the counter
-let fruitCount = 0;
-fruitCounter.textContent = `Fruits: ${fruitCount}`;
+    let fruitCount = 0;
+    fruitCounter.textContent = `Fruits: ${fruitCount}`;
 
-// Function to update and animate the counter
-function updateFruitCounter() {
-  fruitCount = balls.length;
-  fruitCounter.textContent = `Fruits: ${fruitCount}`;
-  fruitCounter.style.animation = 'none'; // Reset animation
-  setTimeout(() => {
-    fruitCounter.style.animation = 'updateCounter 0.5s ease';
-  }, 0); // Trigger animation
-}
+    function updateFruitCounter() {
+      fruitCount = balls.length;
+      fruitCounter.textContent = `Fruits: ${fruitCount}`;
+      fruitCounter.style.animation = 'none';
+      setTimeout(() => {
+        fruitCounter.style.animation = 'updateCounter 0.5s ease';
+      }, 0);
+    }
 
-// Add fruit buttons
-fruits.forEach(fruit => {
-  const button = document.createElement('button');
-  button.textContent = fruit.name;
-  button.addEventListener('click', () => {
-    const radius = calculateRadius();
-    const x = Math.random() * (canvas.width - radius * 2) + radius;
-    const y = Math.random() * (canvas.height - radius * 2) + radius;
-    const dx = Math.random() * 2 - 1;
-    const dy = Math.random() * 2 - 1;
-    balls.push(new Ball(x, y, dx, dy, radius, fruit.image));
-    updateFruitCounter(); // Update the counter whenever a fruit is added
-  });
-  fruitButtonsContainer.appendChild(button);
-});
+    fruits.forEach(fruit => {
+      const button = document.createElement('button');
+      button.textContent = fruit.name;
+      button.addEventListener('click', () => {
+        const radius = calculateRadius();
+        const x = Math.random() * (canvas.width - radius * 2) + radius;
+        const y = Math.random() * (canvas.height - radius * 2) + radius;
+        const dx = Math.random() * 2 - 1;
+        const dy = Math.random() * 2 - 1;
+        const newBall = new Ball(x, y, dx, dy, radius, fruit.image);
+        balls.push(newBall);
 
+        // Save to localStorage
+        const storedFruits = JSON.parse(localStorage.getItem('addedFruits')) || [];
+        storedFruits.push({
+          x, y, dx, dy, radius, image: fruit.image
+        });
+        localStorage.setItem('addedFruits', JSON.stringify(storedFruits));
 
+        // Check if it's the first fruit of the day
+        const currentDate = new Date().toISOString().split('T')[0]; // Get current date (YYYY-MM-DD)
+        const lastLoggedDate = localStorage.getItem('lastLoggedDate');
+
+        if (lastLoggedDate !== currentDate) {
+          streak++; // Increment streak
+          localStorage.setItem('lastLoggedDate', currentDate); // Update the date
+          localStorage.setItem('streak', streak); // Save streak
+        }
+
+        updateFruitCounter();
+        updateStreakCounter();
+      });
+      fruitButtonsContainer.appendChild(button);
+    });
+
+    // Update the streak counter on page load
+    updateStreakCounter();
   </script>
 </body>
 </html>
