@@ -1,6 +1,0 @@
-{
-  "dependencies": {
-    "@huggingface/inference": "^2.8.1",
-    "groq-sdk": "^0.8.0"
-  }
-}
